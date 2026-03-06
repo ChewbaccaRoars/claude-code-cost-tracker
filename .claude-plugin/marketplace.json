@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "cost-tracker",
-      "source": ".",
+      "source": "./plugins/cost-tracker",
       "description": "Track Claude Code costs across sessions, projects, and days. Compare model pricing and analyze spending patterns.",
       "version": "1.0.0"
     }
