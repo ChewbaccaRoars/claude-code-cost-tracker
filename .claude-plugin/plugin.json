@@ -1,0 +1,11 @@
+{
+  "name": "cost-tracker",
+  "description": "Track Claude Code costs across sessions, projects, and days. Compare model pricing and analyze spending patterns.",
+  "version": "1.0.0",
+  "author": {
+    "name": "befoster"
+  },
+  "repository": "https://github.com/befoster/claude-code-cost-tracker",
+  "license": "MIT",
+  "keywords": ["cost", "tracking", "usage", "tokens", "billing", "analytics"]
+}
