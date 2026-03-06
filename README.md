@@ -16,14 +16,14 @@ A Claude Code plugin that automatically tracks your spending across sessions, pr
 Add this repository as a marketplace and install:
 
 ```
-/plugin marketplace add befoster/claude-code-cost-tracker
+/plugin marketplace add ChewbaccaRoars/claude-code-cost-tracker
 /plugin install cost-tracker@claude-code-cost-tracker
 ```
 
 Or install from a local clone:
 
 ```bash
-git clone https://github.com/befoster/claude-code-cost-tracker.git
+git clone https://github.com/ChewbaccaRoars/claude-code-cost-tracker.git
 # Then in Claude Code:
 /plugin install --path ./claude-code-cost-tracker
 ```

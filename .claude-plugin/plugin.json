@@ -5,7 +5,7 @@
   "author": {
     "name": "befoster"
   },
-  "repository": "https://github.com/befoster/claude-code-cost-tracker",
+  "repository": "https://github.com/ChewbaccaRoars/claude-code-cost-tracker",
   "license": "MIT",
   "keywords": ["cost", "tracking", "usage", "tokens", "billing", "analytics"]
 }
