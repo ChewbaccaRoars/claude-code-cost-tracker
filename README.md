@@ -41,8 +41,15 @@ Use the `/cost-tracker` skill to view reports:
 | `/cost-tracker all` | Full history |
 | `/cost-tracker compare` | Model cost comparison |
 | `/cost-tracker project:<name>` | Filter by project name |
+| `/cost-tracker session:<name>` | Filter by session name |
+| `/cost-optimize` | Smart cost reduction recommendations |
+| `/cost-optimize week` | Recommendations for last 7 days |
 
-You can also ask naturally: *"how much have I spent this week?"* or *"show me cost breakdown by project"*
+You can also ask naturally: *"how much have I spent this week?"*, *"show me cost breakdown by project"*, or *"how can I reduce my spending?"*
+
+### Session Names
+
+Sessions renamed with `/rename` are automatically captured in cost logs. Named sessions appear in the **Per-Session Costs** table and can be filtered with `session:<name>`.
 
 ## Example Output
 
@@ -83,11 +90,13 @@ Session ends → SessionEnd hook fires → session-logger.js parses transcript
 → /cost-tracker skill reads log → Generates formatted reports
 ```
 
-1. **SessionEnd hook** (`hooks/session-logger.js`): Reads the session transcript JSONL, extracts token usage from all assistant messages (including subagents), calculates costs using the pricing table, and appends a single JSON line to the persistent log.
+1. **SessionEnd hook** (`hooks/session-logger.js`): Reads the session transcript JSONL, extracts token usage from all assistant messages (including subagents), looks up the session name from Claude Code's session index, calculates costs using the pricing table, and appends a single JSON line to the persistent log.
 
 2. **Cost log** (`~/.claude/cost-tracker/cost-log.jsonl`): One line per session with timestamp, project name, per-model token counts, total cost, model comparison, and peak context usage.
 
 3. **Reporting skill** (`skills/cost-tracker/SKILL.md`): Instructs Claude to read the log and generate formatted reports with tables, trends, and analysis.
+
+4. **Optimization skill** (`skills/cost-optimize/SKILL.md`): Analyzes usage patterns across sessions to generate actionable cost reduction recommendations — model tier suggestions, cache efficiency tips, context bloat warnings, and session-type-specific advice.
 
 ## Supported Models & Pricing
 

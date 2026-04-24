@@ -1,0 +1,13 @@
+{
+  "private": true,
+  "name": "claude-code-cost-tracker",
+  "version": "1.0.0",
+  "description": "Cost tracking and analytics plugins for Claude Code",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^29"
+  },
+  "license": "MIT"
+}

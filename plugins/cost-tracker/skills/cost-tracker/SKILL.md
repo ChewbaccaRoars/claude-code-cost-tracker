@@ -13,6 +13,8 @@ You are a cost analysis assistant. The user wants to see their Claude Code spend
 
 Cost data is logged automatically at `~/.claude/cost-tracker/cost-log.jsonl` (one JSON line per session). Each entry contains:
 - `timestamp`, `start_timestamp`, `end_timestamp`, `session_id`, `project`, `cwd`
+- `session_name`: session name (set via `/rename`, null if not renamed)
+- `session_category`: auto-classified category (debug, build, review, refactor, test, docs, deploy, config)
 - `models`: per-model token breakdown (`input_tokens`, `output_tokens`, `cache_creation_input_tokens`, `cache_read_input_tokens`, `message_count`, `cost_usd`)
 - `total_cost_usd`: actual session cost
 - `model_comparison`: what this session would cost on `opus`, `sonnet`, `haiku`
@@ -26,7 +28,7 @@ Run the report helper script for pre-formatted markdown output:
 node "${CLAUDE_PLUGIN_ROOT}/skills/cost-tracker/scripts/report.js" $ARGUMENTS
 ```
 
-Available arguments: `today`, `week`, `month`, `all`, `compare`, `project:<name>`
+Available arguments: `today`, `week`, `month`, `all`, `compare`, `project:<name>`, `session:<name>`
 
 ### Visual Dashboard (HTML)
 
