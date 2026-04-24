@@ -2,12 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Pricing per token (not per million)
+// Pricing per token (not per million) — updated April 2026
 const PRICING = {
-  'claude-opus-4-6':            { input: 15/1e6, output: 75/1e6, cache_write: 18.75/1e6, cache_read: 1.50/1e6 },
-  'claude-sonnet-4-6':          { input: 3/1e6,  output: 15/1e6, cache_write: 3.75/1e6,  cache_read: 0.30/1e6 },
-  'claude-sonnet-4-5-20250929': { input: 3/1e6,  output: 15/1e6, cache_write: 3.75/1e6,  cache_read: 0.30/1e6 },
-  'claude-haiku-4-5-20251001':  { input: 0.80/1e6, output: 4/1e6, cache_write: 1/1e6,    cache_read: 0.08/1e6 },
+  'claude-opus-4-7':            { input: 5/1e6, output: 25/1e6, cache_write: 6.25/1e6, cache_read: 0.50/1e6 },
+  'claude-opus-4-6':            { input: 5/1e6, output: 25/1e6, cache_write: 6.25/1e6, cache_read: 0.50/1e6 },
+  'claude-sonnet-4-6':          { input: 3/1e6, output: 15/1e6, cache_write: 3.75/1e6, cache_read: 0.30/1e6 },
+  'claude-sonnet-4-5-20250929': { input: 3/1e6, output: 15/1e6, cache_write: 3.75/1e6, cache_read: 0.30/1e6 },
+  'claude-haiku-4-5-20251001':  { input: 1/1e6, output: 5/1e6,  cache_write: 1.25/1e6, cache_read: 0.10/1e6 },
 };
 
 const COMPARISON_MODELS = {

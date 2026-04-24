@@ -8,13 +8,13 @@ const { getPricing, scanTranscript, THRESHOLDS, loadState, saveState, getStatePa
 describe('getPricing', () => {
   test('exact match returns correct pricing', () => {
     const p = getPricing('claude-opus-4-6');
-    expect(p.input).toBe(15 / 1e6);
-    expect(p.output).toBe(75 / 1e6);
+    expect(p.input).toBe(5 / 1e6);
+    expect(p.output).toBe(25 / 1e6);
   });
 
   test('fuzzy match for opus variant', () => {
     const p = getPricing('claude-opus-4-6[1m]');
-    expect(p.input).toBe(15 / 1e6);
+    expect(p.input).toBe(5 / 1e6);
   });
 
   test('unknown model defaults to sonnet', () => {
