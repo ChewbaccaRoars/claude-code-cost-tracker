@@ -130,6 +130,24 @@ describe('THRESHOLDS', () => {
     };
   }
 
+  test('context_150k triggers between 150K and 200K', () => {
+    const threshold = THRESHOLDS.find(t => t.id === 'context_150k');
+    const msg = threshold.check(makeStats({ peakContext: 175000 }));
+    expect(msg).not.toBeNull();
+    expect(msg).toContain('175K');
+    expect(msg).toContain('/compact');
+  });
+
+  test('context_150k does not trigger below 150K', () => {
+    const threshold = THRESHOLDS.find(t => t.id === 'context_150k');
+    expect(threshold.check(makeStats({ peakContext: 100000 }))).toBeNull();
+  });
+
+  test('context_150k does not trigger at 200K+ (context_200k handles that)', () => {
+    const threshold = THRESHOLDS.find(t => t.id === 'context_150k');
+    expect(threshold.check(makeStats({ peakContext: 250000 }))).toBeNull();
+  });
+
   test('context_200k triggers at 200K', () => {
     const threshold = THRESHOLDS.find(t => t.id === 'context_200k');
     expect(threshold.check(makeStats({ peakContext: 250000 }))).not.toBeNull();

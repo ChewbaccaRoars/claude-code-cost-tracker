@@ -1,7 +1,7 @@
 ---
 name: cost-optimize
 description: Analyze Claude Code spending patterns and recommend specific cost optimizations. Use when the user asks about saving money, reducing costs, optimizing spending, getting recommendations, or asks "how can I spend less?" Triggered by phrases like "optimize costs", "save money", "reduce spending", "cost recommendations", "cost tips", "too expensive", "spending too much".
-argument-hint: "[today|week|month|all]"
+argument-hint: "[today|week|month|all|apply [<project>|all]]"
 allowed-tools: Bash(node *), Read
 ---
 
@@ -28,10 +28,39 @@ node "${CLAUDE_PLUGIN_ROOT}/skills/cost-optimize/scripts/recommend.js" $ARGUMENT
 
 Available arguments: `today`, `week`, `month`, `all` (default: `all`)
 
+### Per-Tool Token Attribution
+
+When the user asks "which tools are expensive?" or "where are my tokens going?",
+run the attribution scanner. It walks every transcript under `~/.claude/projects`
+and reports tokens consumed by each tool's results (Read, Bash, Grep, Task, MCP, etc.):
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/skills/cost-optimize/scripts/tool-attribution.js"
+```
+
+Use this to identify whether high-cost is driven by big Read calls, verbose Bash
+output, large Task subagent results, or specific MCP tools — each has different
+mitigations (limit/offset for Read, piping through `head`/`grep` for Bash, etc.).
+
+### Applying Per-Project Recommendations
+
+When the analyzer flags a project that should default to Sonnet, the user can apply the
+fix automatically — this writes `{"model":"sonnet"}` into that project's
+`.claude/settings.json` so future sessions auto-pick the cheaper tier.
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/skills/cost-optimize/scripts/apply.js" list
+node "${CLAUDE_PLUGIN_ROOT}/skills/cost-optimize/scripts/apply.js" apply <project>
+node "${CLAUDE_PLUGIN_ROOT}/skills/cost-optimize/scripts/apply.js" apply all
+```
+
+The script never overwrites an existing `model` field — it only adds one when missing.
+The user must approve the apply step explicitly; do not run `apply all` without confirmation.
+
 ### Instructions
 
-1. Run the recommendation script with the user's requested time range
-2. Present the findings directly — the output is pre-formatted markdown
+1. If the user asks for recommendations: run `recommend.js` with the requested time range and present the findings directly — the output is pre-formatted markdown
+2. If the user says "apply", "auto-fix", "do it", or similar: run `apply.js list` first to show candidates, then ask which to apply, then run `apply.js apply <project>` for each approved one
 3. If the user asks follow-ups, read `~/.claude/cost-tracker/cost-log.jsonl` and analyze specific patterns they're interested in
 4. Be specific and actionable — don't just say "use a cheaper model," explain WHEN and WHY based on their data
 

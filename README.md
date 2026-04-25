@@ -12,8 +12,15 @@ A Claude Code plugin that automatically tracks your spending across sessions, pr
 - **Model comparison** — Shows what your work would cost on Opus, Sonnet, and Haiku
 - **Subagent tracking** — Includes token usage from all subagents spawned during a session
 - **Cache efficiency** — Tracks cache hit ratios to help understand cost drivers
-- **Real-time monitoring** — `Stop` hook surfaces cost tips when context or spend thresholds are crossed
+- **Real-time monitoring** — `Stop` hook surfaces cost tips when context or spend thresholds are crossed (early `/compact` nudge at 150K)
+- **Model-router hints** — `UserPromptSubmit` hook detects routine work on Opus and suggests Sonnet *before* the prompt runs
+- **Per-project auto-apply** — `/cost-optimize apply` writes Sonnet defaults into project `.claude/settings.json` based on observed usage
+- **Statusline meter** — Live cost / context / model display in the Claude Code statusline (opt-in)
 - **Budget alerts** — Configurable daily/weekly/monthly limits with 80% and 100% warnings
+- **Webhook integration** — Slack-compatible POST when a budget threshold is first crossed each day (opt-in)
+- **Cost forecast** — Trailing-average end-of-week and end-of-month projections vs your budget
+- **Console reconciliation** — Cross-check local estimates against the Anthropic Console usage CSV
+- **Per-tool attribution** — Quantify how many tokens each tool (Read, Bash, Grep, Task, MCP, …) consumes
 - **Weekly digests** — Automatic this-week-vs-last comparison on session start
 - **CSV export** — Dump all data for external analysis or expense reporting
 
@@ -77,6 +84,30 @@ Analyzes your spending patterns and generates actionable recommendations:
 
 Or ask: *"how can I reduce my spending?"*
 
+#### Apply per-project model defaults
+
+Once the optimizer has identified projects that should default to Sonnet, the `apply` action
+writes `{"model":"sonnet"}` into each project's `.claude/settings.json` so future sessions
+auto-pick the cheaper tier. Existing model fields are never overwritten.
+
+```
+/cost-optimize apply              # list candidates only (dry run)
+/cost-optimize apply <project>    # apply to one project
+/cost-optimize apply all          # apply to every candidate
+```
+
+#### Per-tool token attribution
+
+Find out which tools dominate your input cost:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/skills/cost-optimize/scripts/tool-attribution.js"
+```
+
+Lists every tool (Read, Bash, Grep, Task subagents, MCP tools, …) by total result tokens
+and average tokens per call, so you know whether to scope `Read` calls, pipe `Bash` output
+through `head`/`grep`, or rein in subagent usage.
+
 ### `/cost-dashboard` — Interactive Visualization
 
 Generates a self-contained HTML dashboard with Chart.js and opens it in your browser:
@@ -95,6 +126,7 @@ Set daily, weekly, or monthly budgets:
 ```
 /cost-budget set weekly 500     # Set $500/week limit
 /cost-budget status             # Check current spend vs limits
+/cost-budget forecast           # Project end-of-week and end-of-month spend
 /cost-budget clear              # Remove all limits
 ```
 
@@ -104,12 +136,35 @@ Budget alerts appear automatically:
 
 Budgets are stored at `~/.claude/cost-tracker/budget.json`.
 
+#### Forecast
+
+The forecast bracket uses two trailing averages — the 30-day window for the low end
+(steady-state) and the 7-day window for the high end (recent burn). Compare the bracket
+against your weekly/monthly limit to see whether you're trending into the red.
+
+#### Webhook on budget breach (opt-in)
+
+Add a `webhook_url` field to `budget.json` and a Slack-compatible JSON payload is POSTed
+when an 80% or 100% threshold is first crossed each UTC day:
+
+```json
+{
+  "daily": 100,
+  "weekly": 500,
+  "webhook_url": "https://hooks.slack.com/services/T0000/B0000/XXXX"
+}
+```
+
+Each `(period, level)` combination fires at most once per day, so the channel doesn't
+spam after the threshold has been crossed.
+
 ## Real-Time Cost Monitor
 
 A `Stop` hook runs after every turn and surfaces tips as system messages when thresholds are crossed:
 
 | Threshold | Trigger | Tip |
 |-----------|---------|-----|
+| Context 150K | Peak context > 150K tokens | Early `/compact` nudge before costs scale |
 | Context 200K | Peak context > 200K tokens | Suggests `/compact` |
 | Context 500K | Peak context > 500K tokens | Warns about per-message cost, suggests splitting |
 | Cost $50 | Session cost > $50 | Suggests Sonnet if on Opus |
@@ -118,6 +173,36 @@ A `Stop` hook runs after every turn and surfaces tips as system messages when th
 | Low cache | Cache hit rate < 30% | Explains impact, advises against context clearing |
 
 Each tip shows once per session — no spam.
+
+## Model-Router Hint (UserPromptSubmit)
+
+When the active model is **Opus** and the prompt looks like routine docs / refactor / test /
+review / exploration work, a one-shot system message suggests `/model sonnet`. The
+classifier suppresses the hint when the prompt mentions architecture, design, root cause,
+race conditions, or other phrases where Opus is genuinely worth the cost.
+
+Each category fires at most once per session, so a single suggestion lands without
+becoming noise.
+
+## Statusline Cost Meter (opt-in)
+
+The plugin ships a statusline script at
+`plugins/cost-tracker/statusline/cost-statusline.js` that shows
+`Sonnet • $1.23 • 145K │ today $4.50/$10 (45%)` and lights up icons as context grows
+(🟡 at 200K, 🔴 at 500K) and as you approach your daily budget (⚠️ at 80%, 🚨 at 100%).
+
+Enable it by adding this to your `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node ~/.claude/plugins/cost-tracker/statusline/cost-statusline.js"
+  }
+}
+```
+
+(Adjust the path to wherever the plugin is installed on your machine.)
 
 ## Weekly Digest
 
@@ -167,8 +252,9 @@ On demand → /cost-tracker, /cost-optimize, /cost-dashboard, /cost-budget
 | Event | Hook | Purpose |
 |-------|------|---------|
 | `SessionStart` | `weekly-digest.js` | Generate weekly comparison if 7+ days since last |
+| `UserPromptSubmit` | `model-router-hint.js` | Suggest Sonnet for Opus sessions running routine work |
 | `Stop` | `cost-monitor.js` | Real-time context and cost threshold alerts |
-| `Stop` | `budget-check.js` | Budget limit enforcement |
+| `Stop` | `budget-check.js` | Budget limit enforcement (+ optional webhook) |
 | `SessionEnd` | `session-logger.js` | Parse transcript, classify, calculate, and log |
 
 ### Data Files
@@ -250,6 +336,19 @@ Tested on:
 
 The logger includes Windows-specific path normalization for Git Bash environments (`/c/Users/...` to `C:\Users\...`).
 
+## Reconcile vs Anthropic Console
+
+Cross-check local cost estimates against the Anthropic Console's actual billing.
+Export the usage CSV from console.anthropic.com (Settings → Usage → Export CSV) and run:
+
+```bash
+node plugins/cost-tracker/skills/cost-tracker/scripts/reconcile.js /path/to/usage.csv
+```
+
+The report shows per-tier and per-day drift, flags models missing from local PRICING,
+and tells you whether local estimates trend high or low so you can update pricing or
+investigate missed sessions.
+
 ## Testing
 
 ```bash
@@ -257,7 +356,7 @@ npm install
 npm test
 ```
 
-128 tests across 6 test suites covering cost calculations, pricing lookup, transcript parsing, session classification, threshold logic, budget checks, digest generation, and report formatting.
+210 tests across 12 test suites covering cost calculations, pricing lookup, transcript parsing, session classification, threshold logic, budget checks, webhook firing, digest generation, report formatting, model-router hints, per-project apply, statusline rendering, cost forecasting, console reconciliation, and per-tool attribution.
 
 ## Contributing
 

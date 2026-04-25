@@ -96,6 +96,15 @@ function scanTranscript(filePath) {
 // Threshold definitions — each returns a message or null
 const THRESHOLDS = [
   {
+    id: 'context_150k',
+    check: (stats) => {
+      if (stats.peakContext >= 150000 && stats.peakContext < 200000) {
+        return `Context is at ${Math.round(stats.peakContext / 1000)}K tokens — input costs scale with conversation length. /compact now is cheaper than waiting until 200K+.`;
+      }
+      return null;
+    },
+  },
+  {
     id: 'context_200k',
     check: (stats) => {
       if (stats.peakContext >= 200000 && stats.peakContext < 500000) {

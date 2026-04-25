@@ -1,7 +1,7 @@
 ---
 name: cost-tracker
-description: Show Claude Code cost tracking reports and visual dashboard. Use when the user asks about costs, spending, token usage, session costs, project costs, model comparison, how much they have spent, or wants a cost dashboard. Triggered by phrases like "show costs", "cost report", "how much", "spending", "cost tracker", "token usage", "dashboard", "cost dashboard".
-argument-hint: "[today|week|month|all|compare|dashboard|project:<name>]"
+description: Show Claude Code cost tracking reports and visual dashboard. Use when the user asks about costs, spending, token usage, session costs, project costs, model comparison, how much they have spent, or wants a cost dashboard. Triggered by phrases like "show costs", "cost report", "how much", "spending", "cost tracker", "token usage", "dashboard", "cost dashboard", "reconcile billing".
+argument-hint: "[today|week|month|all|compare|dashboard|project:<name>|reconcile <csv>]"
 allowed-tools: Bash(node *), Bash(start *), Read
 ---
 
@@ -29,6 +29,19 @@ node "${CLAUDE_PLUGIN_ROOT}/skills/cost-tracker/scripts/report.js" $ARGUMENTS
 ```
 
 Available arguments: `today`, `week`, `month`, `all`, `compare`, `project:<name>`, `session:<name>`
+
+### Reconcile vs Anthropic Console
+
+Cross-check local estimates against the Anthropic Console's actual billing. The user
+must export the usage CSV from console.anthropic.com (Settings → Usage → Export CSV)
+and pass the path:
+
+```
+node "${CLAUDE_PLUGIN_ROOT}/skills/cost-tracker/scripts/reconcile.js" /path/to/usage.csv
+```
+
+The script reports per-tier and per-day drift, surfaces models missing from the local
+PRICING table, and flags whether local estimates trend high or low.
 
 ### Visual Dashboard (HTML)
 

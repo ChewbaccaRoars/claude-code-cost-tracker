@@ -1,9 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const home = process.env.HOME || process.env.USERPROFILE;
 const budgetPath = path.join(home, '.claude', 'cost-tracker', 'budget.json');
 const logPath = path.join(home, '.claude', 'cost-tracker', 'cost-log.jsonl');
+const webhookStateDir = path.join(os.tmpdir(), 'claude-cost-monitor');
 
 function loadBudget() {
   try {
@@ -82,6 +84,77 @@ function formatWarning(w) {
   return `Budget alert: $${w.spend} of $${w.limit} ${w.period} budget used (${w.pct}%). Approaching your limit.`;
 }
 
+// Webhook de-duplication: fire each (period, level) at most once per UTC day
+// so users don't get a Slack ping every turn after they cross a threshold.
+function webhookKey(warning) {
+  const today = new Date().toISOString().slice(0, 10);
+  return `${today}:${warning.period}:${warning.level}`;
+}
+
+function loadWebhookState() {
+  try { fs.mkdirSync(webhookStateDir, { recursive: true }); } catch {}
+  const p = path.join(webhookStateDir, 'webhook-fired.json');
+  try { return { path: p, data: JSON.parse(fs.readFileSync(p, 'utf8')) }; }
+  catch { return { path: p, data: { fired: [] } }; }
+}
+
+function saveWebhookState(state) {
+  try { fs.writeFileSync(state.path, JSON.stringify(state.data)); } catch {}
+}
+
+// Build a Slack-compatible payload; works as plain JSON for any generic webhook too.
+function buildWebhookPayload(warning) {
+  const icon = warning.level === 'exceeded' ? ':rotating_light:' : ':warning:';
+  const text = `${icon} Claude Code budget ${warning.level}: $${warning.spend} of $${warning.limit} ${warning.period} (${warning.pct}%)`;
+  return {
+    text,
+    level: warning.level,
+    period: warning.period,
+    spend_usd: Number(warning.spend),
+    limit_usd: warning.limit,
+    pct: warning.pct,
+    timestamp: new Date().toISOString(),
+  };
+}
+
+// Fire-and-forget POST. Resolves to { ok, status } or { ok: false, error }.
+// Uses global fetch (Node 18+); silently no-ops if fetch is missing.
+async function postWebhook(url, payload, timeoutMs = 4000) {
+  if (typeof fetch !== 'function') return { ok: false, error: 'fetch unavailable' };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+    return { ok: res.ok, status: res.status };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function maybeFireWebhook(budget, warning) {
+  if (!budget.webhook_url || typeof budget.webhook_url !== 'string') return null;
+  if (!/^https?:\/\//i.test(budget.webhook_url)) return null;
+
+  const state = loadWebhookState();
+  const key = webhookKey(warning);
+  if (state.data.fired.includes(key)) return null;
+
+  const result = await postWebhook(budget.webhook_url, buildWebhookPayload(warning));
+  // Record attempt so we don't retry-spam even if the endpoint is down.
+  state.data.fired.push(key);
+  // Cap history so the file doesn't grow forever.
+  if (state.data.fired.length > 200) state.data.fired = state.data.fired.slice(-200);
+  saveWebhookState(state);
+  return result;
+}
+
 // Called from Stop hook — check budget and return systemMessage if needed
 async function main() {
   const budget = loadBudget();
@@ -95,6 +168,9 @@ async function main() {
     const worst = warnings.sort((a, b) => b.pct - a.pct)[0];
     const icon = worst.level === 'exceeded' ? '🚨' : '⚠️';
     process.stdout.write(JSON.stringify({ systemMessage: `${icon} ${formatWarning(worst)}` }));
+    // Fire opt-in webhook (Slack-compatible). Non-blocking from a UX standpoint —
+    // we still write the system message regardless of webhook outcome.
+    await maybeFireWebhook(budget, worst);
   }
 }
 
@@ -105,4 +181,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { loadBudget, loadEntries, getSpend, getTodaySpend, checkBudgets, formatWarning };
+module.exports = { loadBudget, loadEntries, getSpend, getTodaySpend, checkBudgets, formatWarning, buildWebhookPayload, postWebhook, maybeFireWebhook, webhookKey, loadWebhookState, saveWebhookState };

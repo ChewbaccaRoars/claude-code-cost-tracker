@@ -1,5 +1,5 @@
 {
-  "description": "Cost tracking: logs on exit, monitors costs and budgets in real-time, weekly digests",
+  "description": "Cost tracking: logs on exit, monitors costs and budgets in real-time, weekly digests, model-router hints",
   "hooks": {
     "SessionStart": [
       {
@@ -8,6 +8,17 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/weekly-digest.js\" --system-message",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/model-router-hint.js\"",
+            "timeout": 3
           }
         ]
       }
