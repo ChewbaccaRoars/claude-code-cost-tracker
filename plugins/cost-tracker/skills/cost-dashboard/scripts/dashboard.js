@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 const logPath = path.join(process.env.HOME || process.env.USERPROFILE, '.claude', 'cost-tracker', 'cost-log.jsonl');
 const outDir = path.join(process.env.HOME || process.env.USERPROFILE, '.claude', 'cost-tracker');
@@ -270,10 +270,11 @@ new Chart(document.getElementById('hourChart'), {
 // Session table
 const sessions = ${data.topSessions};
 const tbody = document.getElementById('sessionTable');
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 for (const s of sessions) {
   const tr = document.createElement('tr');
   const ctx = s.context > 1000000 ? (s.context / 1000000).toFixed(1) + 'M' : Math.round(s.context / 1000) + 'K';
-  tr.innerHTML = '<td class="session-name">' + s.name + '</td><td>' + s.project + '</td><td>' + s.date + '</td><td>' + ctx + '</td><td class="cost">$' + s.cost.toFixed(2) + '</td>';
+  tr.innerHTML = '<td class="session-name">' + escHtml(s.name) + '</td><td>' + escHtml(s.project) + '</td><td>' + escHtml(s.date) + '</td><td>' + ctx + '</td><td class="cost">$' + s.cost.toFixed(2) + '</td>';
   tbody.appendChild(tr);
 }
 </script>
@@ -297,9 +298,9 @@ if (require.main === module) {
   // Open in browser
   try {
     const platform = process.platform;
-    if (platform === 'win32') execSync(`start "" "${outPath}"`, { stdio: 'ignore' });
-    else if (platform === 'darwin') execSync(`open "${outPath}"`, { stdio: 'ignore' });
-    else execSync(`xdg-open "${outPath}"`, { stdio: 'ignore' });
+    if (platform === 'win32') execFileSync('cmd', ['/c', 'start', '', outPath], { stdio: 'ignore' });
+    else if (platform === 'darwin') execFileSync('open', [outPath], { stdio: 'ignore' });
+    else execFileSync('xdg-open', [outPath], { stdio: 'ignore' });
   } catch {}
 }
 
