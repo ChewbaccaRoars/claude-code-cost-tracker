@@ -1,14 +1,14 @@
-# Claude Code Cost Tracker
+# Context Lens
 
-A Claude Code and Cursor plugin that tracks spending, audits context bloat, and helps you run leaner sessions. Automatic logging, context analysis, optimization recommendations, budget alerts, and session profiles — all local, zero dependencies.
+Cost intelligence and context optimization for AI coding assistants. Works with Claude Code, Cursor, and any tool that runs Claude models.
 
-## What's New in v2.0
+Track spending, audit context bloat, disable unused skills and MCPs, and run leaner sessions. Automatic logging, context analysis, optimization recommendations, budget alerts, and session profiles — all local, zero dependencies.
 
-- **Context Audit** — Scans installed skills, MCPs, plugins, hooks, and memory files. Shows what's eating your context window and what it costs per month. Recommends what to disable.
-- **Session Profiles** — Save and apply "lean" configurations that disable unused MCPs and skills before a session starts. Auto-restores on session end.
-- **Cursor Support** — Dual-runtime pricing engine with Cursor's formula: `(provider_price × 93%) + $0.25/1M tokens`
-- **Skill/MCP Usage Tracking** — Logs which skills and MCP tools you actually invoke each session
-- **Eval Harness** — 5 agent behavior test scenarios for validating skill quality
+## Why Context Lens
+
+Every skill, MCP server, and plugin you install inflates your context window — and you pay for that context on every single message. A typical setup with 60+ skills and 10 MCP servers burns ~145K tokens of overhead before you even ask a question.
+
+Context Lens shows you exactly what that overhead costs, which pieces you actually use, and lets you disable the rest per-session.
 
 ## Features
 
@@ -145,15 +145,16 @@ Generates a self-contained HTML dashboard with Chart.js:
 
 Alerts at 80% (yellow) and 100% (red) via the Stop hook.
 
-## Cursor Support
+## Multi-Runtime Support
 
-The pricing engine supports Cursor's markup formula:
+Context Lens auto-detects your runtime and applies the correct pricing:
 
-```
-Cursor cost = (Model Provider List Price × 93%) + $0.25 per 1M tokens
-```
+| Runtime | Pricing Formula | Config Path |
+|---------|----------------|-------------|
+| **Claude Code** | Direct Anthropic pricing | `~/.claude/.mcp.json` |
+| **Cursor** | `(provider_price × 93%) + $0.25/1M tokens` | `~/.cursor/mcp.json` |
 
-Runtime is auto-detected via Cursor environment variables. All reports show costs for the detected runtime. Use `npx cost-lean` to apply profiles to Cursor's `~/.cursor/mcp.json`.
+Detection is automatic via environment variables. All reports, audits, and profiles work with both runtimes.
 
 ## Real-Time Cost Monitor
 
@@ -265,7 +266,7 @@ node plugins/cost-tracker/evals/run-evals.js
 
 ## Contributing
 
-Issues and PRs welcome at [github.com/ChewbaccaRoars/claude-code-cost-tracker](https://github.com/ChewbaccaRoars/claude-code-cost-tracker).
+Issues and PRs welcome at [github.com/ChewbaccaRoars/context-lens](https://github.com/ChewbaccaRoars/context-lens).
 
 ## License
 

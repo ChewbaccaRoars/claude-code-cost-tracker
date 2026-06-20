@@ -1,11 +1,11 @@
 {
   "name": "cost-tracker",
-  "description": "Track Claude Code and Cursor costs across sessions. Analyze context bloat, compare model pricing, and optimize spending.",
+  "description": "Cost intelligence and context optimization for AI coding assistants. Track spending, audit context bloat, manage session profiles, and optimize across Claude Code and Cursor.",
   "version": "2.0.0",
   "author": {
     "name": "befoster"
   },
   "repository": "https://github.com/ChewbaccaRoars/claude-code-cost-tracker",
   "license": "MIT",
-  "keywords": ["cost", "tracking", "usage", "tokens", "billing", "analytics", "context", "audit", "cursor"]
+  "keywords": ["cost", "tracking", "context", "audit", "optimization", "tokens", "billing", "analytics", "cursor", "lean", "profiles", "mcp"]
 }

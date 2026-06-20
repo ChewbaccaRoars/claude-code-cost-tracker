@@ -1,6 +1,6 @@
 {
-  "name": "claude-code-cost-tracker",
-  "description": "Cost tracking and analytics plugins for Claude Code",
+  "name": "context-lens",
+  "description": "Cost intelligence and context optimization for AI coding assistants",
   "owner": {
     "name": "ChewbaccaRoars"
   },
@@ -8,8 +8,8 @@
     {
       "name": "cost-tracker",
       "source": "./plugins/cost-tracker",
-      "description": "Track Claude Code costs across sessions, projects, and days. Compare model pricing and analyze spending patterns.",
-      "version": "1.0.0"
+      "description": "Track spending, audit context bloat, manage session profiles, and optimize across Claude Code and Cursor.",
+      "version": "2.0.0"
     }
   ]
 }
