@@ -23,7 +23,7 @@ const COMPARISON_MODELS = {
 
 function getPricing(model, _runtime) {
   if (BASE_PRICING[model]) return { pricing: BASE_PRICING[model], estimated: false };
-  const lower = model.toLowerCase();
+  const lower = (model || '').toLowerCase();
   if (lower.includes('opus'))   return { pricing: BASE_PRICING['claude-opus-4-6'], estimated: false };
   if (lower.includes('haiku'))  return { pricing: BASE_PRICING['claude-haiku-4-5-20251001'], estimated: false };
   if (lower.includes('sonnet')) return { pricing: BASE_PRICING['claude-sonnet-4-6'], estimated: false };

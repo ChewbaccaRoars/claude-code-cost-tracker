@@ -1,43 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
+const { BASE_PRICING, COMPARISON_MODELS, getPricing, calcCost, round4, detectRuntime } = require('../lib/pricing-engine');
 
-// Pricing per token (not per million) — updated April 2026
-const PRICING = {
-  'claude-opus-4-7':            { input: 5/1e6, output: 25/1e6, cache_write: 6.25/1e6, cache_read: 0.50/1e6 },
-  'claude-opus-4-6':            { input: 5/1e6, output: 25/1e6, cache_write: 6.25/1e6, cache_read: 0.50/1e6 },
-  'claude-sonnet-4-6':          { input: 3/1e6, output: 15/1e6, cache_write: 3.75/1e6, cache_read: 0.30/1e6 },
-  'claude-sonnet-4-5-20250929': { input: 3/1e6, output: 15/1e6, cache_write: 3.75/1e6, cache_read: 0.30/1e6 },
-  'claude-haiku-4-5-20251001':  { input: 1/1e6, output: 5/1e6,  cache_write: 1.25/1e6, cache_read: 0.10/1e6 },
-};
-
-const COMPARISON_MODELS = {
-  opus:   PRICING['claude-opus-4-6'],
-  sonnet: PRICING['claude-sonnet-4-6'],
-  haiku:  PRICING['claude-haiku-4-5-20251001'],
-};
-
-function getPricing(model) {
-  if (PRICING[model]) return { pricing: PRICING[model], estimated: false };
-  const lower = model.toLowerCase();
-  if (lower.includes('opus'))   return { pricing: PRICING['claude-opus-4-6'], estimated: false };
-  if (lower.includes('haiku'))  return { pricing: PRICING['claude-haiku-4-5-20251001'], estimated: false };
-  if (lower.includes('sonnet')) return { pricing: PRICING['claude-sonnet-4-6'], estimated: false };
-  return { pricing: PRICING['claude-sonnet-4-6'], estimated: true };
-}
-
-function round4(n) {
-  return Math.round(n * 10000) / 10000;
-}
-
-function calcCost(pricing, tokens) {
-  return (
-    (tokens.input_tokens || 0) * pricing.input +
-    (tokens.output_tokens || 0) * pricing.output +
-    (tokens.cache_creation_input_tokens || 0) * pricing.cache_write +
-    (tokens.cache_read_input_tokens || 0) * pricing.cache_read
-  );
-}
+// Keep PRICING as alias for backwards compat in module.exports
+const PRICING = BASE_PRICING;
 
 // Convert Git Bash paths (/c/Users/...) to Windows paths (C:\Users\...)
 function normalizePath(p) {
@@ -170,7 +137,34 @@ function parseTranscript(filePath) {
     if (contextTokens > peakContext) peakContext = contextTokens;
   }
 
-  return { models, peakContext };
+  // Extract skills and MCP usage
+  const skillsUsed = new Set();
+  const mcpsUsed = new Set();
+  for (const line of lines) {
+    let entry;
+    try { entry = JSON.parse(line); } catch { continue; }
+    if (!entry.message) continue;
+    const role = entry.message.role;
+    const content = entry.message.content;
+
+    if (role === 'user' && typeof content === 'string') {
+      const match = content.match(/^\/([a-zA-Z][a-zA-Z0-9_-]*)/);
+      if (match) skillsUsed.add(match[1]);
+    }
+    if (role === 'assistant' && Array.isArray(content)) {
+      for (const block of content) {
+        if (block.type === 'tool_use') {
+          if (block.name === 'Skill' && block.input && block.input.skill) {
+            skillsUsed.add(block.input.skill);
+          }
+          const mcpMatch = (block.name || '').match(/^mcp__([^_]+)__/);
+          if (mcpMatch) mcpsUsed.add(mcpMatch[1]);
+        }
+      }
+    }
+  }
+
+  return { models, peakContext, skillsUsed: [...skillsUsed], mcpsUsed: [...mcpsUsed] };
 }
 
 async function main() {
@@ -241,6 +235,7 @@ async function main() {
   const project = getProjectName(normalizedCwd);
   const sessionName = getSessionName(session_id, normalizedCwd);
   const sessionCategory = classifySession(transcript_path);
+  const runtime = detectRuntime();
 
   const logEntry = {
     timestamp: new Date().toISOString(),
@@ -254,6 +249,9 @@ async function main() {
     model_comparison: modelComparison,
     peak_context_tokens: primaryResult.peakContext,
     reason: reason || 'unknown',
+    skills_used: primaryResult.skillsUsed || [],
+    mcps_used: primaryResult.mcpsUsed || [],
+    runtime,
   };
 
   const logPath = path.join(process.env.HOME || process.env.USERPROFILE, '.claude', 'cost-tracker', 'cost-log.jsonl');

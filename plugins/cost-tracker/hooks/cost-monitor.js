@@ -1,22 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
+const { BASE_PRICING, getPricing: engineGetPricing } = require('../lib/pricing-engine');
 
-const PRICING = {
-  'claude-opus-4-7':            { input: 5/1e6, output: 25/1e6, cache_write: 6.25/1e6, cache_read: 0.50/1e6 },
-  'claude-opus-4-6':            { input: 5/1e6, output: 25/1e6, cache_write: 6.25/1e6, cache_read: 0.50/1e6 },
-  'claude-sonnet-4-6':          { input: 3/1e6, output: 15/1e6, cache_write: 3.75/1e6, cache_read: 0.30/1e6 },
-  'claude-sonnet-4-5-20250929': { input: 3/1e6, output: 15/1e6, cache_write: 3.75/1e6, cache_read: 0.30/1e6 },
-  'claude-haiku-4-5-20251001':  { input: 1/1e6, output: 5/1e6,  cache_write: 1.25/1e6, cache_read: 0.10/1e6 },
-};
+const PRICING = BASE_PRICING;
 
 function getPricing(model) {
-  if (PRICING[model]) return PRICING[model];
-  const lower = (model || '').toLowerCase();
-  if (lower.includes('opus'))   return PRICING['claude-opus-4-6'];
-  if (lower.includes('haiku'))  return PRICING['claude-haiku-4-5-20251001'];
-  if (lower.includes('sonnet')) return PRICING['claude-sonnet-4-6'];
-  return PRICING['claude-sonnet-4-6'];
+  const { pricing } = engineGetPricing(model);
+  return pricing;
 }
 
 function normalizePath(p) {
