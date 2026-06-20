@@ -1,8 +1,8 @@
 {
   "private": true,
   "name": "claude-code-cost-tracker",
-  "version": "1.0.0",
-  "description": "Cost tracking and analytics plugins for Claude Code",
+  "version": "2.0.0",
+  "description": "Cost tracking, context audit, and analytics for Claude Code and Cursor",
   "scripts": {
     "test": "jest"
   },

@@ -1,6 +1,9 @@
 ---
 name: cost-tracker
-description: Show Claude Code cost tracking reports and visual dashboard. Use when the user asks about costs, spending, token usage, session costs, project costs, model comparison, how much they have spent, or wants a cost dashboard. Triggered by phrases like "show costs", "cost report", "how much", "spending", "cost tracker", "token usage", "dashboard", "cost dashboard".
+description: >-
+  Use when the user asks about costs, spending, token usage, how much
+  they have spent, or wants to see a cost report or dashboard. Triggers
+  on: "show costs", "cost report", "how much", "spending", "token usage".
 argument-hint: "[today|week|month|all|compare|dashboard|project:<name>]"
 allowed-tools: Bash(node *), Bash(start *), Read
 ---

@@ -1,6 +1,9 @@
 ---
 name: cost-budget
-description: Set and manage spending budgets for Claude Code. Use when the user asks to set a budget, spending limit, cost cap, or says "set budget", "limit spending", "budget", "how much budget left".
+description: >-
+  Use when the user asks to set a budget, spending limit, cost cap, or
+  check budget status. Triggers on: "set budget", "limit spending",
+  "budget", "how much budget left".
 argument-hint: "[set daily|weekly|monthly <amount> | status | clear]"
 allowed-tools: Bash(node *), Read, Write
 ---

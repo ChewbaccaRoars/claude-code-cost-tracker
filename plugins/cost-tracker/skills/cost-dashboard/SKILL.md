@@ -1,6 +1,9 @@
 ---
 name: cost-dashboard
-description: Generate and open an interactive HTML cost dashboard with charts. Use when the user asks for a visual dashboard, cost charts, spending visualization, or says "show me a dashboard", "cost graph", "visualize spending".
+description: >-
+  Use when the user asks for a visual dashboard, cost charts, or spending
+  visualization. Triggers on: "show me a dashboard", "cost graph",
+  "visualize spending", "cost dashboard".
 argument-hint: ""
 allowed-tools: Bash(node *), Read
 ---
@@ -21,7 +24,7 @@ The dashboard script reads `~/.claude/cost-tracker/cost-log.jsonl` and generates
 ### Running the Dashboard
 
 ```
-node "${CLAUDE_PLUGIN_ROOT}/skills/cost-dashboard/scripts/dashboard.js"
+node "${CLAUDE_PLUGIN_ROOT}/skills/cost-tracker/scripts/dashboard.js"
 ```
 
 This generates `~/.claude/cost-tracker/dashboard.html` and opens it in the default browser. The script outputs the file path.

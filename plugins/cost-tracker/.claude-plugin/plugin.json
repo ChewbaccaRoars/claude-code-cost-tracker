@@ -1,11 +1,11 @@
 {
   "name": "cost-tracker",
-  "description": "Track Claude Code costs across sessions, projects, and days. Compare model pricing and analyze spending patterns.",
-  "version": "1.0.0",
+  "description": "Track Claude Code and Cursor costs across sessions. Analyze context bloat, compare model pricing, and optimize spending.",
+  "version": "2.0.0",
   "author": {
     "name": "befoster"
   },
   "repository": "https://github.com/ChewbaccaRoars/claude-code-cost-tracker",
   "license": "MIT",
-  "keywords": ["cost", "tracking", "usage", "tokens", "billing", "analytics"]
+  "keywords": ["cost", "tracking", "usage", "tokens", "billing", "analytics", "context", "audit", "cursor"]
 }

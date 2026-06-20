@@ -1,6 +1,9 @@
 ---
 name: cost-optimize
-description: Analyze Claude Code spending patterns and recommend specific cost optimizations. Use when the user asks about saving money, reducing costs, optimizing spending, getting recommendations, or asks "how can I spend less?" Triggered by phrases like "optimize costs", "save money", "reduce spending", "cost recommendations", "cost tips", "too expensive", "spending too much".
+description: >-
+  Use when asking about saving money, reducing costs, optimizing spending,
+  or getting recommendations. Triggers on: "optimize costs", "save money",
+  "reduce spending", "cost tips", "too expensive", "spending too much".
 argument-hint: "[today|week|month|all]"
 allowed-tools: Bash(node *), Read
 ---
