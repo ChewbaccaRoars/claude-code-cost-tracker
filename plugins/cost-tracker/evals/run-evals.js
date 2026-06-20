@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 
 const scenariosDir = path.join(__dirname, 'scenarios');
 
@@ -41,8 +41,9 @@ function runEval(scenario) {
   console.log(`  Prompt: "${scenario.user_prompt}"`);
 
   try {
-    const response = execSync(
-      `claude -p ${JSON.stringify(scenario.user_prompt)} --output-format text --model sonnet`,
+    const response = execFileSync(
+      'claude',
+      ['-p', scenario.user_prompt, '--output-format', 'text', '--model', 'sonnet'],
       { encoding: 'utf8', timeout: 120000, stdio: ['pipe', 'pipe', 'pipe'] }
     ).trim();
 
