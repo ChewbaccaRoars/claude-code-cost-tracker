@@ -1,0 +1,13 @@
+{
+  "servicenow-mcp": 80,
+  "slack": 50,
+  "workspace-mcp": 90,
+  "playwright": 20,
+  "atlan-mcp": 18,
+  "n8n-mcp": 7,
+  "red-sky": 10,
+  "dataverse-mcp": 5,
+  "compliance-dashboard": 5,
+  "productpages": 5,
+  "miro": 10
+}

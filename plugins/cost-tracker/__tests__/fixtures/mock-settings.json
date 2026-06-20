@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "slack": { "type": "stdio", "command": "node", "args": ["slack-server.js"] },
+    "playwright": { "type": "stdio", "command": "npx", "args": ["@anthropic/playwright-mcp"] },
+    "custom-mcp": { "type": "http", "url": "https://example.com/mcp" }
+  },
+  "hooks": {
+    "SessionStart": [{ "hooks": [{ "type": "command", "command": "node hook1.js", "timeout": 5 }] }],
+    "Stop": [{ "hooks": [{ "type": "command", "command": "node hook2.js", "timeout": 5 }, { "type": "command", "command": "node hook3.js", "timeout": 5 }] }]
+  },
+  "permissions": {
+    "allow": ["Bash(node *)", "Bash(git *)", "Read"]
+  }
+}
