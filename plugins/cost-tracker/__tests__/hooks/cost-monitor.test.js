@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { getPricing, scanTranscript, THRESHOLDS, loadState, saveState, getStatePath } = require('../cost-monitor');
+const { getPricing, scanTranscript, THRESHOLDS, loadState, saveState, getStatePath } = require('../../hooks/cost-monitor');
 
 // --- getPricing ---
 

@@ -1,4 +1,4 @@
-const { filterByDate, filterToday, fmtNumber, fmtCost, escapeCsv, summarize } = require('../report');
+const { filterByDate, filterToday, fmtNumber, fmtCost, escapeCsv, summarize } = require('../../skills/cost-tracker/scripts/report');
 
 // --- fmtCost ---
 

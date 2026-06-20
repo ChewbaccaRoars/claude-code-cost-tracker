@@ -7,7 +7,7 @@ const {
   analyzeTimePatterns,
   analyzeSubagentUsage,
   generateRecommendations,
-} = require('../recommend');
+} = require('../../skills/cost-optimize/scripts/recommend');
 
 function makeEntry(overrides = {}) {
   return {

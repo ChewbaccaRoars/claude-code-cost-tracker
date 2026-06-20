@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
-const { PRICING, getPricing, round4, calcCost, normalizePath, classifySession, parseTranscript } = require('../session-logger');
+const { PRICING, getPricing, round4, calcCost, normalizePath, classifySession, parseTranscript } = require('../../hooks/session-logger');
 
 // --- calcCost ---
 

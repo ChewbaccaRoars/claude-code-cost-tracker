@@ -1,4 +1,4 @@
-const { summarizePeriod, generateDigest, shouldGenerate, getWeekBounds, filterByDateRange } = require('../weekly-digest');
+const { summarizePeriod, generateDigest, shouldGenerate, getWeekBounds, filterByDateRange } = require('../../hooks/weekly-digest');
 
 function makeEntry(daysAgo, cost, project) {
   const d = new Date();

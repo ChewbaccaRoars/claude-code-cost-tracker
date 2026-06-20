@@ -1,4 +1,4 @@
-const { checkBudgets, formatWarning, getSpend, getTodaySpend } = require('../budget-check');
+const { checkBudgets, formatWarning, getSpend, getTodaySpend } = require('../../hooks/budget-check');
 
 function makeEntry(daysAgo, cost) {
   const d = new Date();
