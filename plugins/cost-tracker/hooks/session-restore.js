@@ -17,7 +17,7 @@ try {
     restoreMcpConfig(paths);
 
     // Re-enable all skills
-    enableSkills(paths, 'all');
+    enableSkills(paths, ['all']);
 
     // Silent success - hook runs automatically
   }

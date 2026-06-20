@@ -64,14 +64,14 @@ async function main() {
         console.log(`\nApplying profile: ${parsed.name}`);
         console.log(`Description: ${profile.description || 'No description'}`);
 
-        if (profile.mcpServers && profile.mcpServers.length > 0) {
-          console.log(`\nMCP servers to keep: ${profile.mcpServers.join(', ')}`);
+        if (profile.mcps && profile.mcps.length > 0) {
+          console.log(`\nMCP servers to keep: ${profile.mcps.join(', ')}`);
         } else {
           console.log('\nMCP servers: All disabled');
         }
 
-        if (profile.skillPatterns && profile.skillPatterns.length > 0) {
-          console.log(`Skill patterns to keep: ${profile.skillPatterns.join(', ')}`);
+        if (profile.skills && profile.skills.length > 0) {
+          console.log(`Skills to keep: ${profile.skills.join(', ')}`);
         } else {
           console.log('Skills: All disabled');
         }
@@ -79,7 +79,7 @@ async function main() {
         const result = applyProfile(paths, profile);
 
         console.log(`\n✓ Profile "${parsed.name}" applied.`);
-        console.log(`  ${result.mcpServersKept} MCP servers kept, ${result.skillsDisabled} skills disabled.`);
+        console.log(`  ${result.mcpResult.kept.length} MCP servers kept, ${result.skillsDisabled.length} skills disabled.`);
         console.log(`  Backup saved.`);
 
         const launchCmd = runtime === 'cursor' ? 'Open Cursor' : 'claude';

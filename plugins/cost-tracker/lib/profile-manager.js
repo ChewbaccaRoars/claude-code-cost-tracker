@@ -1,6 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
+const SAFE_NAME_RE = /^[a-zA-Z0-9_-]+$/;
+
+function validateName(name) {
+  if (!name || !SAFE_NAME_RE.test(name)) {
+    throw new Error(`Invalid name: "${name}". Use only alphanumeric, dash, underscore.`);
+  }
+}
+
 /**
  * Create a backup of current .mcp.json before modifying
  * @param {object} paths - Config paths object
@@ -88,6 +96,10 @@ function disableSkills(paths, skillNames) {
   const notFound = [];
 
   for (const skillName of skillNames) {
+    if (!SAFE_NAME_RE.test(skillName)) {
+      notFound.push(skillName);
+      continue;
+    }
     const skillDir = path.join(paths.skillsDir, skillName);
     const skillFile = path.join(skillDir, 'SKILL.md');
     const disabledFile = path.join(skillDir, 'SKILL.md.disabled');
@@ -120,6 +132,10 @@ function enableSkills(paths, skillNames) {
   }
 
   for (const skillName of skillNames) {
+    if (!SAFE_NAME_RE.test(skillName)) {
+      notFound.push(skillName);
+      continue;
+    }
     const skillDir = path.join(paths.skillsDir, skillName);
     const skillFile = path.join(skillDir, 'SKILL.md');
     const disabledFile = path.join(skillDir, 'SKILL.md.disabled');
@@ -167,6 +183,7 @@ function listDisabledSkills(paths) {
  * @param {object} profile - Profile object
  */
 function saveProfile(paths, name, profile) {
+  validateName(name);
   fs.mkdirSync(paths.profilesDir, { recursive: true });
   const profilePath = path.join(paths.profilesDir, `${name}.json`);
   fs.writeFileSync(profilePath, JSON.stringify(profile, null, 2));
@@ -179,6 +196,7 @@ function saveProfile(paths, name, profile) {
  * @returns {object|null} - Profile object or null if not found
  */
 function loadProfile(paths, name) {
+  validateName(name);
   const profilePath = path.join(paths.profilesDir, `${name}.json`);
   if (!fs.existsSync(profilePath)) {
     return null;
@@ -209,6 +227,7 @@ function listProfiles(paths) {
  * @param {string} name - Profile name
  */
 function deleteProfile(paths, name) {
+  validateName(name);
   const profilePath = path.join(paths.profilesDir, `${name}.json`);
   if (fs.existsSync(profilePath)) {
     fs.unlinkSync(profilePath);
@@ -267,6 +286,7 @@ function restoreAll(paths) {
 }
 
 module.exports = {
+  validateName,
   backupMcpConfig,
   restoreMcpConfig,
   hasBackup,
