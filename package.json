@@ -3,6 +3,9 @@
   "name": "claude-code-cost-tracker",
   "version": "2.0.0",
   "description": "Cost tracking, context audit, and analytics for Claude Code and Cursor",
+  "bin": {
+    "cost-lean": "./plugins/cost-tracker/bin/cost-lean.js"
+  },
   "scripts": {
     "test": "jest"
   },
