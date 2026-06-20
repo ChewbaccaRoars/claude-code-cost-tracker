@@ -1,0 +1,8 @@
+{
+  "name": "mcp-partial-use",
+  "description": "Agent does not blanket-disable recently used MCPs",
+  "user_prompt": "Should I disable the Slack MCP? I used it yesterday but not much otherwise.",
+  "required_in_response": ["keep", "recently"],
+  "required_any": true,
+  "forbidden_in_response": ["disable slack", "remove slack"]
+}

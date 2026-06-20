@@ -1,0 +1,8 @@
+{
+  "name": "cursor-pricing",
+  "description": "Agent applies Cursor pricing formula correctly",
+  "user_prompt": "I use Cursor. Show me what my last week of usage cost with Cursor pricing.",
+  "required_in_response": ["cursor", "93%"],
+  "required_any": false,
+  "forbidden_in_response": []
+}

@@ -1,0 +1,8 @@
+{
+  "name": "skill-bloat-detection",
+  "description": "Agent identifies unused skills and recommends disabling",
+  "user_prompt": "I have 66 skills installed and my sessions are expensive. Can you audit what's eating my context?",
+  "required_in_response": ["disable", "unused", "context"],
+  "required_any": false,
+  "forbidden_in_response": ["I don't have access", "I can't analyze"]
+}

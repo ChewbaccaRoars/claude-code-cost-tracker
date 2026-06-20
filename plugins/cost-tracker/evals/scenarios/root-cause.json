@@ -1,0 +1,8 @@
+{
+  "name": "root-cause-analysis",
+  "description": "Agent correlates multiple cost factors, not single cause",
+  "user_prompt": "My last session cost $47. Why was it so expensive?",
+  "required_in_response": ["context", "model"],
+  "required_any": false,
+  "forbidden_in_response": ["I don't know"]
+}

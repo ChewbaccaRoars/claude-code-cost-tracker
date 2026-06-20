@@ -1,0 +1,8 @@
+{
+  "name": "vague-cost-help",
+  "description": "Agent routes a vague cost question to the right tool",
+  "user_prompt": "My Claude Code usage feels expensive. What can I do?",
+  "required_in_response": ["cost-optimize", "cost-audit"],
+  "required_any": true,
+  "forbidden_in_response": ["I don't have access", "I cannot"]
+}
